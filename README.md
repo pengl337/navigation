@@ -20,7 +20,7 @@ ctest --test-dir build --output-on-failure
 
 ## 统一开发环境
 
-五人统一在 **Linux 桌面虚拟机**中开发和验证：Ubuntu Desktop **24.04 LTS（noble，amd64）**、Qt **6.4.2**、GCC/G++ **13.3.0**、CMake **3.28.3**（C++17）。安装、版本核对与复现步骤见 [统一开发环境](docs/development-environment.md)。1 号本机已完成 I 盘虚拟机安装、版本核对、Qt 桌面窗口与 Qt Creator 构建验证；其他成员待复现，见 [实测记录](docs/environment/member-1-2026-10-26.md)。
+五人统一在 **Linux 桌面虚拟机**中开发和验证：Ubuntu Desktop **24.04 LTS（noble，amd64）**、Qt **6.4.2**、GCC/G++ **13.3.0**、CMake **3.28.3**（C++17）。安装、版本核对与复现步骤见 [统一开发环境](docs/development-environment.md)。1 号本机已完成虚拟机安装、版本核对、Qt 桌面窗口与 Qt Creator 构建验证；其他成员待复现，见 [实测记录](docs/environment/member-1-2026-10-26.md)。
 
 ## 团队分工
 
