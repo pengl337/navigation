@@ -20,7 +20,9 @@
 
 - 当前组名为“Linux 端导航应用开发组（Linux PAL 适配）”，任务以 `docs/linux-assignment-reference.md` 对应的新 PDF 为依据。旧任务摘录与历史 AI 对话仅用于追溯。
 - 目标为 Linux 原生导航应用，使用 C++、Qt Widgets / OpenGL ES、Qt Creator / CMake；集成真实 C++ A*/HMM，完成 LinuxRenderer、LinuxVoiceAdapter、StorageAdapter、LocationAdapter 四项 PAL 适配。
-- Linux 发行版/架构、Qt、编译器、CMake、C++ 标准、图形驱动与依赖版本以 `project.md` 和实际工程为准，目前尚未锁定。1 号创建最小可运行工程，记录实测步骤后由其他成员复现；不要擅自升级依赖或虚构运行证据。
+- 五位成员统一使用 **Linux 桌面虚拟机**：Ubuntu Desktop **24.04 LTS（noble，x86_64/amd64）**、Qt **6.4.2**、GCC/G++ **13.3.0**、CMake **3.28.3**，C++17。编译、运行和主要验收在虚拟机内完成；宿主机 Windows 工具链、WSL 或不同发行版不作为团队统一验收环境。
+- 详细安装、核对、快照与升级约定见 [统一开发环境](docs/development-environment.md)。1 号验证基础虚拟机并记录 ISO 校验、实际包修订号、Qt Kit、图形/音频条件及复现步骤，其他成员使用共同基线。不得单独换版；版本不符先报告。此处是团队约定，不表示当前已安装或运行成功。
+- 虚拟机硬件/软件渲染、GeoClue2、麦克风与语音回调须实测；模拟位置、软件渲染与真实服务证据分开记录。性能报告注明宿主/虚拟机资源和实际版本，不将虚拟机指标泛化为物理硬件表现。
 - 语音必须覆盖本地中文 TTS/ASR、speak()/listen()、经 FFI 返回核心层的回调与生命周期；存储为 SQLite/本地文件；定位为 GeoClue2。LOCATION/MICROPHONE 按目标 Linux 环境和分发方式落实声明/授权，不能把任务书的名称直接当作通用系统配置键。
 - 5 号明确 drawTile→drawImage、drawRoute→drawLine、present→flush 映射与异步绘制；OpenGL 路线验证上下文/线程归属。算法、解析、数据库与渲染工作不得阻塞 UI，资源和回调必须有明确所有权与释放方式。
 - 第 4 次必须与 G6 真实联调并提交报告；交付 Linux 可执行程序、完整 CMake 工程、文档、Linux 截图与 3–5 分钟视频；离线数据包随应用分发。新 PDF 未给具体性能阈值，不套用旧平台数值。

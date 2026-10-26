@@ -4,6 +4,10 @@
 
 5 人使用 C++、Qt Widgets / OpenGL ES 和 CMake 开发 Linux 导航应用，集成 A*/HMM，完成渲染、语音、存储、定位四项 PAL 适配，并与 G6 联调。当前完成的是规划与规则，尚无可运行工程。
 
+## 统一开发环境
+
+五人统一在 **Linux 桌面虚拟机**中开发和验证：Ubuntu Desktop **24.04 LTS（noble，amd64）**、Qt **6.4.2**、GCC/G++ **13.3.0**、CMake **3.28.3**（C++17）。安装、版本核对与复现步骤见 [统一开发环境](docs/development-environment.md)。版本已约定，实际安装与运行尚未验证。
+
 ## 团队分工
 
 | 组员 | 主要职责 |
@@ -13,6 +17,12 @@
 | 3 | C++ A*/HMM 集成、异步任务、算法调用页与性能监控 |
 | 4 | LocationAdapter（GeoClue2/权限）、导航/偏航/模拟回放、G6 联调报告 |
 | 5 | LinuxRenderer（Qt Widget/OpenGL ES）、地图交互与仪表盘 |
+
+## 提示词框架
+
+新对话可以使用 [prompts/README.md](prompts/README.md)：按“通用开场 + 本人职责 + 本次流程”组合，覆盖五人模块开发、算法方案对比、跨组联调、排错与验收。
+
+例如：`我是 P1 Linux 组员 2，请使用 prompts/start.md、members.md 的 2 号职责和 workflows.md 的模块开发流程，处理本次数据导入任务。`
 
 ## 开始工作
 
