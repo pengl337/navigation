@@ -2,11 +2,25 @@
 
 **组名：Linux 端导航应用开发组（Linux PAL 适配）。**
 
-5 人使用 C++、Qt Widgets / OpenGL ES 和 CMake 开发 Linux 导航应用，集成 A*/HMM，完成渲染、语音、存储、定位四项 PAL 适配，并与 G6 联调。当前完成的是规划与规则，尚无可运行工程。
+5 人使用 C++、Qt Widgets / OpenGL ES 和 CMake 开发 Linux 导航应用，集成 A*/HMM，完成渲染、语音、存储、定位四项 PAL 适配，并与 G6 联调。当前已建立第一次作业 Qt Widgets 应用框架源码，Linux 构建与桌面验收状态见 [框架说明](docs/assignment-1-framework.md)；真实数据解析与其他业务模块尚未接入。
+
+## 第一次作业：应用框架
+
+根目录 `CMakeLists.txt` 是 Qt Creator 工程入口。窗口、页面导航、明暗主题、文件选择占位页、公共组件演示和模块页面替换已实现；详细构建步骤、关键函数与 2/3/4/5 号交接入口见 [基础框架说明](docs/assignment-1-framework.md)。导入解析与保存由 2 号接入，当前“开始导入”保持禁用。
+
+在团队 Ubuntu 虚拟机的工程目录中执行：
+
+```bash
+bash tools/verify-environment.sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=/usr/bin/g++-13
+cmake --build build -j1
+ctest --test-dir build --output-on-failure
+./build/p1-navigation
+```
 
 ## 统一开发环境
 
-五人统一在 **Linux 桌面虚拟机**中开发和验证：Ubuntu Desktop **24.04 LTS（noble，amd64）**、Qt **6.4.2**、GCC/G++ **13.3.0**、CMake **3.28.3**（C++17）。安装、版本核对与复现步骤见 [统一开发环境](docs/development-environment.md)。版本已约定，实际安装与运行尚未验证。
+五人统一在 **Linux 桌面虚拟机**中开发和验证：Ubuntu Desktop **24.04 LTS（noble，amd64）**、Qt **6.4.2**、GCC/G++ **13.3.0**、CMake **3.28.3**（C++17）。安装、版本核对与复现步骤见 [统一开发环境](docs/development-environment.md)。1 号本机已完成 I 盘虚拟机安装、版本核对、Qt 桌面窗口与 Qt Creator 构建验证；其他成员待复现，见 [实测记录](docs/environment/member-1-2026-10-26.md)。
 
 ## 团队分工
 
@@ -20,6 +34,8 @@
 
 ## 提示词框架
 
+UI 设计与实现统一遵循 [design.md](design.md)：包含 Clay 风格明暗配色、字体、留白、组件样式、地图工作台及第一次作业数据导入页面规范。涉及 UI 时先读此文档；当前公共主题与应用外壳已按规范编写，业务导入、地图和导航仍待接入。
+
 新对话可以使用 [prompts/README.md](prompts/README.md)：按“通用开场 + 本人职责 + 本次流程”组合，覆盖五人模块开发、算法方案对比、跨组联调、排错与验收。
 
 例如：`我是 P1 Linux 组员 2，请使用 prompts/start.md、members.md 的 2 号职责和 workflows.md 的模块开发流程，处理本次数据导入任务。`
@@ -32,6 +48,6 @@
 
 推荐开场：`我是 P1 Linux 组员 3。请阅读项目规划、协作规则和方案抉择记录，再处理 C++ 算法集成任务。`
 
-支持 AGENTS.md 的工具应读取根目录规则；其他工具请手动附加相关文件。环境与构建步骤待工程创建后实测补充。最终产物为 Linux 可执行程序及完整 CMake 工程，附运行截图、3–5 分钟 Linux 视频与 G6 联调报告。
+支持 AGENTS.md 的工具应读取根目录规则；其他工具请手动附加相关文件。构建步骤与实际验证状态见基础框架说明，未完成的验收不得按示例命令视为通过。最终产物为 Linux 可执行程序及完整 CMake 工程，附运行截图、3–5 分钟 Linux 视频与 G6 联调报告。
 
 旧平台任务摘录仅供历史参考，当前 P1 范围以新 PDF 为准。

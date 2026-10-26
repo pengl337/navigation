@@ -1,0 +1,5 @@
+/build*/
+/out/
+*.user
+*.user.*
+.DS_Store

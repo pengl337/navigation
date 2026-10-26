@@ -1,0 +1,31 @@
+Start testing: Oct 26 18:07 CST
+----------------------------------------------------------
+1/1 Testing: ui-contracts
+1/1 Test: ui-contracts
+Command: "/home/navigation/navigation-assignment1-20261026-1626/build/p1-ui-tests"
+Directory: /home/navigation/navigation-assignment1-20261026-1626/build
+"ui-contracts" start time: Oct 26 18:07 CST
+Output:
+----------------------------------------------------------
+********* Start testing of UiTests *********
+Config: Using QtTest library 6.4.2, Qt 6.4.2 (x86_64-little_endian-lp64 shared (dynamic) release build; by GCC 13.2.0), ubuntu 24.04
+PASS   : UiTests::initTestCase()
+PASS   : UiTests::initialClientFitsAvailableScreen()
+PASS   : UiTests::themeAndNavigationPreserveForm()
+PASS   : UiTests::disabledRoutesDoNotChangePage()
+PASS   : UiTests::selectedFileSurvivesThemeAndInvalidSelection()
+PASS   : UiTests::pageReplacementTransfersOwnership()
+QWARN  : UiTests::compactLayoutAndKeyboardDialog() This plugin does not support propagateSizeHints()
+PASS   : UiTests::compactLayoutAndKeyboardDialog()
+PASS   : UiTests::cleanupTestCase()
+Totals: 8 passed, 0 failed, 0 skipped, 0 blacklisted, 7821ms
+********* Finished testing of UiTests *********
+<end of output>
+Test time =   7.97 sec
+----------------------------------------------------------
+Test Passed.
+"ui-contracts" end time: Oct 26 18:07 CST
+"ui-contracts" time elapsed: 00:00:07
+----------------------------------------------------------
+
+End testing: Oct 26 18:07 CST
