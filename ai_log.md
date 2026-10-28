@@ -203,8 +203,8 @@ AI回答：
 >
 > 本机（Windows / Qt 6.11 / MSVC）仅做语法冒烟，不作为构建或测试验收；Linux 虚拟机构建、零警告与 ctest 结果待组员 4 实测。
 
-我的理解：待用户自己填写。
+我的理解：这一步把“位置”从 UI 里的占位值变成可被其他模块消费的正式契约。关键在于把三个容易混淆的概念分开：`seq` 是会话内发出序号，只增不减，seek 回退也不重置，消费方可据此判新旧；`trackFrame` 只是 Mock 的轨迹帧号，会随 seek 回退；`sessionId` 每次 start() 递增，承担 requestId 职责，消费方用它丢弃上一会话的残余样本。回放行为（pause/resume/seek/倍速/stop 后静默）用 ctest 固定下来，是为了后续接状态机与偏航重算时不出现回归。Mock 只是可确定复现的数据源，不代表真实定位能力，GeoClue2 留到第 3 次。
 
-是否采用，以及原因：源码、样例、模块 CMake、测试与演示已写入工作区，尚未提交；顶层 CMake 一行是否应用及采用原因待用户填写。
+是否采用，以及原因：全部采用。源码、样例、模块 CMake、测试与演示已提交为 `412d29d`；顶层 CMakeLists.txt 已按建议追加 `add_subdirectory(src/navigation)`（位于 `include(CTest)` 之后），并在 Ubuntu 24.04.4 + Qt 6.4.2 + GCC 13.3.0 实测：`cmake --build` 28/28 目标、`-Wall -Wextra -Wpedantic` 下 0 警告，`ctest` 3/3 通过（ui-contracts、navigation-location、navigation-location-demo），演示 24 行、末行“全部通过”。采用原因：契约先落地可让 4 号状态机与 5 号地图演示并行开发，不必等真实定位接入；Mock 提供确定性输入，使 seek/倍速/stop 这类时序行为可被自动化验证，而不是靠人工观察窗口。
 
 对本组的实际价值：为 4 号状态机、5 号地图演示和后续 GeoClue2 真实源提供统一位置契约与可确定回放的 Mock 数据源，真实源只需实现同一接口即可替换。限制：未接 GeoClue2、未在 Linux 虚拟机构建验证；Mock 不能作为真实定位或 PAL 适配证据；X06 未确认。详情见 project.md 第 7 节 2026-10-28 记录。

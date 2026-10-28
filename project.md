@@ -18,9 +18,9 @@ PDF 总任务中的“适配四大平台”未列出平台清单；本组明确�
 
 | 项目 | 当前任务要求/统一约定 | 实测状态与待办 |
 | --- | --- | --- |
-| 目标系统 | Linux 桌面虚拟机：Ubuntu Desktop 24.04 LTS（noble），x86_64/amd64 | 1 号已验证 Ubuntu 24.04.4 amd64 / Wayland / 官方 ISO SHA256；其他成员待复现 |
+| 目标系统 | Linux 桌面虚拟机：Ubuntu Desktop 24.04 LTS（noble），x86_64/amd64 | 1 号已验证 Ubuntu 24.04.4 amd64 / Wayland / 官方 ISO SHA256；4 号已在统一虚拟机复现（Ubuntu 24.04.4 LTS amd64，见 [member-4 记录](docs/environment/member-4-2026-10-28.md)）；2/3/5 号待复现 |
 | 语言与界面 | C++17、Qt 6.4.2 / Qt Widgets；地图按 Qt Widget 或 OpenGL ES 适配 | 1 号 Qt 6.4.2 / C++17 / Qt Widgets 窗口通过；业务渲染后端待选择，OpenGL ES 未验证 |
-| IDE/构建 | Qt Creator；GCC/G++ 13.3.0；CMake 3.28.3；完整 CMake 工程 | 1 号 GCC/G++ 13.3.0、CMake 3.28.3 与 Qt Creator 专用 Kit 已验证；独立检查工程构建通过 |
+| IDE/构建 | Qt Creator；GCC/G++ 13.3.0；CMake 3.28.3；完整 CMake 工程 | 1 号 GCC/G++ 13.3.0、CMake 3.28.3 与 Qt Creator 专用 Kit 已验证；独立检查工程构建通过；4 号 GCC/G++ 13.3.0、CMake 3.28.3、Ninja 1.11.1 已核对，构建与 ctest 通过 |
 | 渲染 PAL | LinuxRenderer；瓦片、路线、标记及异步绘制 | 绘制接口、上下文/线程约束由 5 号落实；OpenGL 路线需验证上下文与驱动 |
 | 语音 PAL | LinuxVoiceAdapter；本地 TTS 与本地 ASR、中文环境、FFI 回调 | 后端/模型/依赖、回调 ABI、所有权及生命周期由 1 号核实 |
 | 存储 PAL | StorageAdapter；SQLite 与本地文件系统 | schema、SQLite 接入、事务/路径与离线包格式由 2 号确认 |
@@ -226,7 +226,7 @@ FFI 是 PDF 明确要求，不能因主体为 C++ 就静默省略；1、4 号与
 
 ### 2026-10-28：位置源契约与可回放模拟位置源
 
-- 日期 / 模块 / 负责人 / 状态：2026-10-28 / LocationSource 契约与 Mock 回放 / 4 / 进行中（源码已写，**Linux 虚拟机构建与测试未验证**）。
+- 日期 / 模块 / 负责人 / 状态：2026-10-28 / LocationSource 契约与 Mock 回放 / 4 / 已完成（Ubuntu 24.04.4 + Qt 6.4.2 + GCC 13.3.0 构建零警告，ctest 3/3 通过）。
 - 已实现能力与正式入口：
   - `include/contracts/LocationTypes.h`：CoordinateSystem(WGS84/GCJ02/BD09)、SourceKind(mock/real)、GeoCoordinate、PositionSample，头文件内有字段表（单位、是否可选）。
   - `include/contracts/LocationSource.h`：LocationStatus（Idle/Starting/Active/NoFix/PermissionDenied/Unavailable/Stopped）、LocationErrorCode（权限被拒/服务不可用/位置丢失/精度过低）、LocationError、抽象 `LocationSource`（start/stop/status/kind/sessionId + positionUpdated/statusChanged/errorOccurred）；头注释写明线程归属、所有权/生命周期、stop() 后无回调。
@@ -244,13 +244,19 @@ FFI 是 PDF 明确要求，不能因主体为 C++ 就静默省略；1、4 号与
 - 跨组选择及确认依据：X06/X04/X05/X01/X07 均未接入，按用户要求只用本地 Mock；未触发关键算法选型。
 - decision_log.md 记录 ID：不涉及。
 - Linux 环境、验证步骤/结果/证据：
-  - 未在统一 Linux 虚拟机构建，待 4 号执行 `cmake --build build -j1` 与 `ctest --test-dir build --output-on-failure` 并记录结果。
-  - Windows 本机（Qt 6.11 + MSVC 2022，非验收环境）仅做语法冒烟：/W4 无警告，Qt Test 23 通过 0 失败，演示全部检查通过。这些结果不作为 GCC 13.3 零警告或 Qt 6.4.2 兼容的证据。
-- 顶层集成：需由用户/1 号在根 `CMakeLists.txt` 末尾（`include(CTest)` 的 `endif()` 之后）追加 `add_subdirectory(src/navigation)`，本次未修改根 CMake。
+  - 环境：VirtualBox 7.2.22 上的 Ubuntu 24.04.4 LTS amd64，Qt 6.4.2、GCC/G++ 13.3.0、CMake 3.28.3、Ninja 1.11.1，2 核虚拟 CPU，`verify-environment.sh` 5 项 PASS。
+  - 取码：从仓库分支 `codex/member-4/location-source` 以 `git clone -b ... file:///...` 取得 LF 换行工作副本（`CMakeLists.txt` 中 CR 数为 0），避免 Windows CRLF 混入。
+  - 验证命令与结果：
+    - `cmake -S . -B build -G Ninja` → 退出码 0。
+    - `cmake --build build -j2` → 退出码 0，28/28 目标完成，`-Wall -Wextra -Wpedantic` 下 **0 条 warning**。
+    - `ctest --test-dir build --output-on-failure` → 退出码 0，`ui-contracts` 0.47 s、`navigation-location` 0.41 s、`navigation-location-demo` 1.09 s，**3/3 通过，0 失败**。
+    - `./build/src/navigation/p1-location-demo` → 退出码 0，24 行输出，末行 `[result] 全部通过`；覆盖 setSpeed(4.0)/25 ms 间隔、stop() 后 400 ms 内回调次数 = 0、stop() 后 stepOnce() 被拒绝且不发信号、seq 严格递增（含 seek 回退）、帧序列 0,1,2,[seek]1,2,3,4,5,6、最终状态 Stopped。
+  - 证据：Windows 本机（Qt 6.11 + MSVC 2022）另做的语法冒烟（/W4 无警告、Qt Test 23 通过 0 失败）**不作为验收依据**；验收以上述 Linux 虚拟机结果为准。
+- 顶层集成：已在本提交中于根 `CMakeLists.txt` 末尾（`include(CTest)` 的 `endif()` 之后）追加 `add_subdirectory(src/navigation)` 并附注释说明位置约束；该行缺失会导致 `src/navigation` 不参与构建、`navigation-location` 与 `navigation-location-demo` 两项 ctest 不注册。
 - 未实现/未验证内容、下一步与涉及组员：
   - 下一步：虚拟机构建验证；导航状态机（idle/规划中/导航中/偏航/到达）消费 LocationSource；为 5 号提供回放驱动的 NavigationSnapshot。
   - 未实现：GeoClue2、定位权限声明、偏航重算、X06 联调。Mock 不能作为真实定位或 PAL 适配验收证据。
-- 关联日志 / 已有提交：`20261028-member4-location-source-01`（ai_log 对话 5）；未提交、未推送。
+- 关联日志 / 已有提交：`20261028-member4-location-source-01`（ai_log 对话 5）；实现 `412d29d`（位置源契约与 Mock 回放）、`727647f`（根 CMakeLists 引入 `src/navigation`）。三者均**未推送**——`git push` 返回 403，需先解决本账号对 origin 的写权限。
 
 
 ### 后续完成记录模板
