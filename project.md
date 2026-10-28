@@ -1,6 +1,6 @@
 # P1 Linux 导航应用：总体规划与实现状态
 
-最后更新：2026-10-26（Asia/Shanghai）。组员：1、2、3、4、5。
+最后更新：2026-10-28（Asia/Shanghai）。组员：1、2、3、4、5。
 
 ## 1. 组名、任务依据与当前事实
 
@@ -61,7 +61,7 @@ PDF 总任务中的“适配四大平台”未列出平台清单；本组明确�
 
 所有 UI 设计、实现与评审统一使用根目录 [design.md](design.md) v1.0（2026-10-26）：按用户指定的 Clay Dashboard 视觉风格、Mapbox Car Navigation 地图交互和 EV Stations Health Map 整体布局方向，定义明暗配色、字体、间距、圆角/阴影、公共组件、地图工作台与第一次作业导入流程。网页文字与色板已核对，参考主图未完整载入，具体视觉参数为本项目定义。1 号维护公共主题与应用外壳；2 号负责导入流程实现；5 号负责地图与仪表盘落地。后续 UI 变更先读此文件，调整基准时同步更新。当前已编写应用外壳与公共主题源码，业务导入/地图仍待接入；外部接口与渲染后端仍待确认。
 
-工程结构（应用、公共 UI、测试与根 CMake 已创建；其他模块目录仍为规划位置）：
+工程结构（应用、公共 UI、测试与根 CMake 已创建；2026-10-28 起 `include/contracts/` 已有 4 号位置源契约、`src/navigation/` 已有位置源回放与模块 CMake、`tests/fixtures/location/` 已有固定轨迹，均待 Linux 虚拟机构建验证；其他模块目录仍为规划位置）：
 
 ```text
 CMakeLists.txt               # 1：顶层工程与目标装配
@@ -85,7 +85,7 @@ docs/                       # 各模块说明及 G6 联调报告
 | --- | --- | --- |
 | DataRepository / StorageAdapter | 2 → 1/3/5 | 数据集 ID/版本、导入进度、图/轨迹/瓦片读取；用户本地 CRUD；包清单/下载/更新；禁止其他模块直接操作其数据库内部表 |
 | RoutePlanner / MapMatcher | 3 → 4/算法页 | 异步请求 ID、输入/结果、取消/失败；路径几何/路段/距离/时间、匹配点/道路/质量信息 |
-| LocationAdapter / LocationSource | 4 → 导航核心 | GeoClue2 和模拟源可替换，位置/时间/速度/方向/精度，启停/错误/权限状态 |
+| LocationAdapter / LocationSource | 4 → 导航核心 | GeoClue2 和模拟源可替换，位置/时间/速度/方向/精度，启停/错误/权限状态。已落地契约：`include/contracts/LocationTypes.h`、`LocationSource.h`（2026-10-28，Linux 构建待验证）；Mock 实现 `src/navigation/MockLocationSource.*`，真实源替换点 `src/pal/linux/location/` |
 | NavigationController / NavigationSnapshot | 4 → 1/5 | 导航命令、状态、路线、位置、剩余距离/时间、引导指令及序号；经 G6 确认事件映射 |
 | LinuxRenderer / MapScene | 5 → UI；2/3/4 提供输入 | drawTile→drawImage、drawRoute→drawLine、present→flush；图像/路线/标记、选点/视角事件、异步提交与渲染完成；后端映射及函数签名待实现验证 |
 | LinuxVoiceAdapter | 1 ↔ 核心层/4 | speak() 本地中文 TTS、listen() 本地 ASR；语音回调通过 FFI 传回核心层；明确 ABI、回调线程、缓冲区归属、注销与销毁顺序 |
@@ -150,7 +150,7 @@ FFI 是 PDF 明确要求，不能因主体为 C++ 就静默省略；1、4 号与
 | 窗口/导航/主题/公共组件基线 | 1 | 已完成（基础子项） | 真实 Wayland 桌面启动、屏幕适配、主题/组件与文件选择回传通过；源码、双平台测试、实际桌面截图与安装入口见框架说明；不包含真实导入和完整缩放验收 |
 | 数据导入/StorageAdapter/离线包 | 2 | 未开始 | 确认 X01/X07 与存储接口 |
 | C++ A*/HMM/性能页 | 3 | 未开始 | 确认算法来源与 X04/X05 |
-| LocationAdapter/导航/G6 联调 | 4 | 未开始 | GeoClue2/权限与 G6 事件契约，准备联调用例 |
+| LocationAdapter/导航/G6 联调 | 4 | 进行中 | 位置源契约、固定轨迹读取与 Mock 回放源码已写（2026-10-28），Linux 虚拟机构建/ctest 未验证；顶层 add_subdirectory 待用户应用。下一步：虚拟机验证后做导航状态机；GeoClue2 真实源（第 3 次）与 X06 未开始 |
 | LinuxRenderer/地图/仪表盘 | 5 | 未开始 | 选择渲染后端与绘制接口，满足第 2 次作业 |
 | LinuxVoiceAdapter/用户页面 | 1，2/4 配合 | 未开始 | 本地 TTS/ASR、FFI、中文与麦克风权限 |
 | Linux 发布与最终材料 | 全员，1 汇总 | 未开始 | 逐次收集运行证据、G6 报告和 3–5 分钟视频 |
@@ -223,6 +223,34 @@ FFI 是 PDF 明确要求，不能因主体为 C++ 就静默省略；1、4 号与
 
 - AI 日志按“1. AI使用详情”的九字段格式整理，仅保留推动项目构建的重要成果；工具表逐条对应，并如实标注未知版本。原桌面补测并入框架实现记录，原重要记录 ID 保留，纯补录、登录与重复状态询问不再单列。
 - AGENTS.md 第 4 节替换逐轮全文记录规则；具体方案确认仍由 decision_log.md 承载，详细验收依据仍在模块文档。当前业务进度不变，本次整理不新增 AI 日志条目。
+
+### 2026-10-28：位置源契约与可回放模拟位置源
+
+- 日期 / 模块 / 负责人 / 状态：2026-10-28 / LocationSource 契约与 Mock 回放 / 4 / 进行中（源码已写，**Linux 虚拟机构建与测试未验证**）。
+- 已实现能力与正式入口：
+  - `include/contracts/LocationTypes.h`：CoordinateSystem(WGS84/GCJ02/BD09)、SourceKind(mock/real)、GeoCoordinate、PositionSample，头文件内有字段表（单位、是否可选）。
+  - `include/contracts/LocationSource.h`：LocationStatus（Idle/Starting/Active/NoFix/PermissionDenied/Unavailable/Stopped）、LocationErrorCode（权限被拒/服务不可用/位置丢失/精度过低）、LocationError、抽象 `LocationSource`（start/stop/status/kind/sessionId + positionUpdated/statusChanged/errorOccurred）；头注释写明线程归属、所有权/生命周期、stop() 后无回调。
+  - `src/navigation/FixedTrackLoader.*`：CSV/JSON 固定轨迹读取，校验坐标范围、时间严格递增、坐标系一致、列名单位；失败返回“来源:行号: 原因”，不抛异常、不跳过坏行。
+  - `src/navigation/MockLocationSource.*`：固定步长定时回放；setStepIntervalMs、setSpeed(0.1–32)、pause/resume、seekTo(轨迹帧)、stepOnce 单步、精度阈值、simulateError 故障注入；回放确定性，结束时 replayFinished 后自动 Stopped。
+  - `src/navigation/CMakeLists.txt`：目标 `p1_navigation`(STATIC)、演示 `p1-location-demo`、测试 `p1-navigation-tests`；ctest 名 `navigation-location`、`navigation-location-demo`。
+  - 样例：`tests/fixtures/location/campus_loop.csv/.json`（合成 12 帧 WGS84 数据，非私人轨迹；内容等价）。
+- 接口、数据约定与 PAL 边界：
+  - 单位：米、米/秒、度（正北 0 顺时针）、Unix 毫秒 int64。
+  - `seq`：会话内发出序号，严格递增，seek 回退也不减。`trackFrame`：仅 Mock 有，表示轨迹帧号，即 seekTo 的参数。
+  - `sessionId`：每次 start() 递增，承担 requestId，消费方据此丢弃旧会话样本。`dataVersion` 取自轨迹文件。
+  - Mock 时间戳取自轨迹文件，不是墙钟。
+  - 含 Q_OBJECT 的契约头由 p1_navigation 负责 moc，使用方链接 p1_navigation。
+  - GeoClue2 真实源为替换点（`src/pal/linux/location/`，第 3 次作业），本次目录留空。
+- 跨组选择及确认依据：X06/X04/X05/X01/X07 均未接入，按用户要求只用本地 Mock；未触发关键算法选型。
+- decision_log.md 记录 ID：不涉及。
+- Linux 环境、验证步骤/结果/证据：
+  - 未在统一 Linux 虚拟机构建，待 4 号执行 `cmake --build build -j1` 与 `ctest --test-dir build --output-on-failure` 并记录结果。
+  - Windows 本机（Qt 6.11 + MSVC 2022，非验收环境）仅做语法冒烟：/W4 无警告，Qt Test 23 通过 0 失败，演示全部检查通过。这些结果不作为 GCC 13.3 零警告或 Qt 6.4.2 兼容的证据。
+- 顶层集成：需由用户/1 号在根 `CMakeLists.txt` 末尾（`include(CTest)` 的 `endif()` 之后）追加 `add_subdirectory(src/navigation)`，本次未修改根 CMake。
+- 未实现/未验证内容、下一步与涉及组员：
+  - 下一步：虚拟机构建验证；导航状态机（idle/规划中/导航中/偏航/到达）消费 LocationSource；为 5 号提供回放驱动的 NavigationSnapshot。
+  - 未实现：GeoClue2、定位权限声明、偏航重算、X06 联调。Mock 不能作为真实定位或 PAL 适配验收证据。
+- 关联日志 / 已有提交：`20261028-member4-location-source-01`（ai_log 对话 5）；未提交、未推送。
 
 
 ### 后续完成记录模板
